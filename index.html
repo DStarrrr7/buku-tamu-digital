@@ -115,10 +115,19 @@
         { nama, keperluan }
       ]);
 
-      if (error) {
-        status.textContent = "Data gagal disimpan.";
-        return;
-      }
+      const { error } = await db.from("buku_tamu").insert([
+  { nama, keperluan }
+]);
+
+if (error) {
+  console.error("Supabase Error:", error);
+  status.textContent = "Gagal: " + error.message;
+  return;
+}
+
+status.textContent = "Data berhasil disimpan!";
+form.reset();
+await tampilkanData();
 
       status.textContent = "Data berhasil disimpan!";
       form.reset();
