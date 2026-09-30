@@ -63,69 +63,82 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = "https://oekjcdopyybykltkzyrl.supabase.co/rest/v1/";
-    const SUPABASE_KEY = "sb_publishable_pGQhCxhcxENykZ0L1HRNbw__sOsMEnA";
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    const db = window.supabase.createClient(
-      SUPABASE_URL, SUPABASE_KEY
-    );
+<script>
+  const SUPABASE_URL = "https://oekjcdopyybykltkzyrl.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_pGQhCxhcxENykZ0L1HRNbw__sOsMEnA";
 
-    const form = document.getElementById("formTamu");
-    const status = document.getElementById("status");
-    const daftar = document.getElementById("daftar");
+  const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
-    async function tampilkanData() {
-      daftar.replaceChildren();
+  const form = document.getElementById("formTamu");
+  const status = document.getElementById("status");
+  const daftar = document.getElementById("daftar");
 
-      const { data, error } = await db
-        .from("buku_tamu")
-        .select("id, nama, keperluan, created_at")
-        .order("created_at", { ascending: false });
+  async function tampilkanData() {
+    daftar.replaceChildren();
 
-      if (error) {
-        status.textContent = "Gagal mengambil data.";
-        return;
-      }
+    const { data, error } = await db
+      .from("buku_tamu")
+      .select("id, nama, keperluan, created_at")
+      .order("created_at", { ascending: false });
 
-      data.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "item";
-
-        const nama = document.createElement("strong");
-        nama.textContent = item.nama;
-
-        const keperluan = document.createElement("p");
-        keperluan.textContent = item.keperluan;
-
-        div.append(nama, keperluan);
-        daftar.appendChild(div);
-      });
+    if (error) {
+      console.error("Gagal mengambil data:", error);
+      status.textContent = "Gagal mengambil data: " + error.message;
+      return;
     }
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      status.textContent = "Menyimpan data...";
+    data.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "item";
 
-      const nama = document.getElementById("nama").value.trim();
-      const keperluan =
-        document.getElementById("keperluan").value.trim();
+      const nama = document.createElement("strong");
+      nama.textContent = item.nama;
 
-      const { error } = await db.from("buku_tamu").insert([
-        { nama, keperluan }
+      const keperluan = document.createElement("p");
+      keperluan.textContent = item.keperluan;
+
+      div.append(nama, keperluan);
+      daftar.appendChild(div);
+    });
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    status.textContent = "Menyimpan data...";
+
+    const nama = document.getElementById("nama").value.trim();
+    const keperluan =
+      document.getElementById("keperluan").value.trim();
+
+    const { error } = await db
+      .from("buku_tamu")
+      .insert([
+        {
+          nama: nama,
+          keperluan: keperluan
+        }
       ]);
 
+    if (error) {
+      console.error("Supabase Error:", error);
+      status.textContent = "Gagal: " + error.message;
+      return;
+    }
 
-      if (error) {
-        console.error("Supabase Error:", error);
-        status.textContent = "Gagal: " + error.message;
-        return;
-      }
+    status.textContent = "Data berhasil disimpan!";
 
-      status.textContent = "Data berhasil disimpan!";
-      form.reset();
-      await tampilkanData();
+    form.reset();
 
-  </script>
+    await tampilkanData();
+  });
+
+  tampilkanData();
+</script>
 </body>
 </html>
